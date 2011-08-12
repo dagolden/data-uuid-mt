@@ -115,22 +115,37 @@ sub _build_64bit_v1 {
 
 sub _build_32bit_v1 {
   my $self = shift;
-  my $gregorian_offset = Math::BigInt->new("12219292800")->bmul(10_000_000);
-  my $prng = $self->{prng};
+  my $prng = $self->{_prng};
 
   return sub {
-    my ($sec,$usec) = Time::HiRes::gettimeofday();
-    my $timestamp = Math::BigInt->new($sec);
-    $timestamp->bmul(10_000_000)->badd($usec*10)->badd($gregorian_offset);
-    # pack it up as 64 bit
-    my $j = $timestamp->copy->brsft(32);
-    my $k = $timestamp - $j->copy->blsft(32);
-    my $raw_time = pack("NN", $j, $k);
+    # Adapted from UUID::Tiny
+    my $timestamp = Time::HiRes::time();
+
+    # hi = time mod (1000000 / 0x100000000)
+    my $hi = int( $timestamp / 65536.0 / 512 * 78125 );
+    $timestamp -= $hi * 512.0 * 65536 / 78125;
+    my $low = int( $timestamp * 10000000.0 + 0.5 );
+
+    # MAGIC offset: 01B2-1DD2-13814000
+    if ( $low < 0xec7ec000 ) {
+        $low += 0x13814000;
+    }
+    else {
+        $low -= 0xec7ec000;
+        $hi++;
+    }
+
+    if ( $hi < 0x0e4de22e ) {
+        $hi += 0x01b21dd2;
+    }
+    else {
+        $hi -= 0x0e4de22e;    # wrap around
+    }
+
     # UUID v1 shuffles the time bits around
-    my $uuid  = substr($raw_time,4,4)
-              . substr($raw_time,2,2)
-              . substr($raw_time,0,2)
-              . pack("NN", $prng->irand, $prng->irand);
+    my $uuid  = pack( 'NnnNN',
+      $low, $hi & 0xffff, ( $hi >> 16 ) & 0x0fff, $prng->irand, $prng->irand
+    );
     vec($uuid, 87, 1) = 0x1;        # force MAC multicast bit on per RFC
     vec($uuid, 13, 4) = 0x1;        # set UUID version
     vec($uuid, 35, 2) = 0x2;        # set UUID variant
@@ -185,16 +200,34 @@ sub _build_64bit_v4s {
 # 100 nanosecond intervals since epoch
 sub _build_32bit_v4s {
   my $self = shift;
-  my $prng = $self->{prng};
+  my $prng = $self->{_prng};
 
   return sub {
-    my ($sec,$usec) = Time::HiRes::gettimeofday();
-    my $timestamp = Math::BigInt->new($sec);
-    $timestamp->bmul(10_000_000)->badd($usec*10);
-    # pack it up as 128 bit
-    my $j = $timestamp->copy->brsft(32);
-    my $k = $timestamp - $j->copy->blsft(32);
-    my $uuid = pack("N4", $j, $k, $prng->irand, $prng->irand);
+    # Adapted from UUID::Tiny
+    my $timestamp = Time::HiRes::time();
+
+    # hi = time mod (1000000 / 0x100000000)
+    my $hi = int( $timestamp / 65536.0 / 512 * 78125 );
+    $timestamp -= $hi * 512.0 * 65536 / 78125;
+    my $low = int( $timestamp * 10000000.0 + 0.5 );
+
+    # MAGIC offset: 01B2-1DD2-13814000
+    if ( $low < 0xec7ec000 ) {
+        $low += 0x13814000;
+    }
+    else {
+        $low -= 0xec7ec000;
+        $hi++;
+    }
+
+    if ( $hi < 0x0e4de22e ) {
+        $hi += 0x01b21dd2;
+    }
+    else {
+        $hi -= 0x0e4de22e;    # wrap around
+    }
+
+    my $uuid = pack("N4", $hi, $low, $prng->irand, $prng->irand);
     vec($uuid, 13, 4) = 0x4;        # set UUID version
     vec($uuid, 35, 2) = 0x2;        # set UUID variant
     return $uuid;
