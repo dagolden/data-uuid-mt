@@ -122,7 +122,7 @@ sub _build_32bit_v1 {
     $timestamp->bmul(10_000_000)->badd($usec*10)->badd($gregorian_offset);
     # pack it up as 64 bit
     my $j = $timestamp->copy->brsft(32);
-    my $k = $timestamp - $j->lsft(32);
+    my $k = $timestamp - $j->blsft(32);
     my $raw_time = pack("NN", $j, $k);
     # UUID v1 shuffles the time bits around
     my $uuid  = substr($raw_time,4,4)
@@ -191,7 +191,7 @@ sub _build_32bit_v4s {
     $timestamp->bmul(10_000_000)->badd($usec*10);
     # pack it up as 128 bit
     my $j = $timestamp->copy->brsft(32);
-    my $k = $timestamp - $j->lsft(32);
+    my $k = $timestamp - $j->blsft(32);
     my $uuid = pack("N4", $j, $k, $prng->irand, $prng->irand);
     vec($uuid, 13, 4) = 0x4;        # set UUID version
     vec($uuid, 35, 2) = 0x2;        # set UUID variant
