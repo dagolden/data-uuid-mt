@@ -12,9 +12,10 @@ use Time::HiRes;
 use Config;
 
 # XXX need Math::BigInt on 32 bit systems
-# XXX MAC is constant -- we should we be cache it ?
-# XXX need to reseed MT if $$ has changed -- or in a Thread -- or embed it
-#     in v4 and seq structure?
+use if $Config{uvsize} != 8 => 'Math::BigInt';
+
+# XXX for testing
+use Math::BigInt;
 
 # HoH: $builders{$Config{uvsize}}{$version}
 my %builders = (
@@ -22,6 +23,11 @@ my %builders = (
     '1'   =>  '_build_64bit_v1',
     '4'   =>  '_build_64bit_v4',
     '4s'  =>  '_build_64bit_v4s',
+  },
+  '4' => {
+    '1'   =>  '_build_32bit_v1',
+    '4'   =>  '_build_32bit_v4',
+    '4s'  =>  '_build_32bit_v4s',
   }
 );
 
@@ -30,6 +36,9 @@ sub new {
   $args{version} //= 4;
   Carp::croak "Unsupported UUID version '$args{version}'"
     unless $args{version} =~ /^(?:1|4|4s)$/;
+  my $int_size = $Config{uvsize};
+  Carp::croak "Unsupported integer size '$int_size'"
+    unless $int_size == 4 || $int_size == 8;
 
   my $prng = Math::Random::MT::Auto->new;
 
@@ -84,7 +93,7 @@ sub version {
 
 sub _build_64bit_v1 {
   my $self = shift;
-  my $gregorian_offset = 12219292800 * 10**7;
+  my $gregorian_offset = 12219292800 * 10_000_000;
   my $prng = $self->{prng};
 
   return sub {
@@ -102,14 +111,51 @@ sub _build_64bit_v1 {
   }
 }
 
-# XXX this is for 64 bit
-# my $uiud = pack("L4", irand, irand, irand, irand); # XXX for 32 bit
+sub _build_32bit_v1 {
+  my $self = shift;
+  my $gregorian_offset = Math::BigInt->new("12219292800")->bmul(10_000_000);
+  my $prng = $self->{prng};
+
+  return sub {
+    my ($sec,$usec) = Time::HiRes::gettimeofday();
+    my $timestamp = Math::BigInt->new($sec)->bmul;
+    $timestamp->bmul(10_000_000)->badd($usec*10)->badd($gregorian_offset);
+    # pack it up as 64 bit
+    my $j = $timestamp->copy->brsft(32);
+    my $k = $timestamp - $j->lsft(32);
+    my $raw_time = pack("NN", $j, $k);
+    # UUID v1 shuffles the time bits around
+    my $uuid  = substr($raw_time,4,4)
+              . substr($raw_time,2,2)
+              . substr($raw_time,0,2)
+              . pack("NN", $prng->irand, $prng->irand);
+    vec($uuid, 87, 1) = 0x1;        # force MAC multicast bit on per RFC
+    vec($uuid, 13, 4) = 0x1;        # set UUID version
+    vec($uuid, 35, 2) = 0x2;        # set UUID variant
+    return $uuid;
+  }
+}
+
 sub _build_64bit_v4 {
   my $self = shift;
   my $prng = $self->{prng};
 
   return sub {
     my $uuid = pack("Q>2", $prng->irand, $prng->irand);
+    vec($uuid, 13, 4) = 0x4;        # set UUID version
+    vec($uuid, 35, 2) = 0x2;        # set UUID variant
+    return $uuid;
+  }
+}
+
+sub _build_32bit_v4 {
+  my $self = shift;
+  my $prng = $self->{prng};
+
+  return sub {
+    my $uuid = pack("N4",
+      $prng->irand, $prng->irand, $prng->irand, $prng->irand
+    );
     vec($uuid, 13, 4) = 0x4;        # set UUID version
     vec($uuid, 35, 2) = 0x2;        # set UUID variant
     return $uuid;
@@ -127,6 +173,26 @@ sub _build_64bit_v4s {
     my $uuid = pack("Q>2",
       $sec*10_000_000 + $usec*10, $prng->irand
     );
+    vec($uuid, 13, 4) = 0x4;        # set UUID version
+    vec($uuid, 35, 2) = 0x2;        # set UUID variant
+    return $uuid;
+  }
+}
+
+# "4s" is custom "random" with sequential override based on
+# 100 nanosecond intervals since epoch
+sub _build_32bit_v4s {
+  my $self = shift;
+  my $prng = $self->{prng};
+
+  return sub {
+    my ($sec,$usec) = Time::HiRes::gettimeofday();
+    my $timestamp = Math::BigInt->new($sec)->bmul;
+    $timestamp->bmul(10_000_000)->badd($usec*10);
+    # pack it up as 128 bit
+    my $j = $timestamp->copy->brsft(32);
+    my $k = $timestamp - $j->lsft(32);
+    my $uuid = pack("N4", $j, $k, $prng->irand, $prng->irand);
     vec($uuid, 13, 4) = 0x4;        # set UUID version
     vec($uuid, 35, 2) = 0x2;        # set UUID variant
     return $uuid;
