@@ -37,13 +37,13 @@ sub new {
   my $prng = Math::Random::MT::Auto->new;
 
   my $self = {
-    prng => $prng,
-    version => $args{version},
+    _prng => $prng,
+    _version => $args{version},
   };
   
   bless $self, $class;
 
-  $self->{iterator} = $self->_build_iterator;
+  $self->{_iterator} = $self->_build_iterator;
 
   return $self;
 }
@@ -51,34 +51,30 @@ sub new {
 sub _build_iterator {
   my $self = shift;
   # get the iterator based on int size and UUID version
-  my $int_size = 4; # XXX $Config{uvsize};
-  my $builder = $builders{$int_size}{$self->{version}};
+  my $int_size = $Config{uvsize};
+  my $builder = $builders{$int_size}{$self->{_version}};
   return $self->$builder;
 }
 
 sub create {
-  return shift->{iterator}->();
+  return shift->{_iterator}->();
 }
 
 sub create_hex {
-  return uc join "-", unpack("H*", shift->{iterator}->() );
+  return uc join "-", unpack("H*", shift->{_iterator}->() );
 }
 
 sub create_string {
-  return uc join "-", unpack("H8H4H4H4H12", shift->{iterator}->());
+  return uc join "-", unpack("H8H4H4H4H12", shift->{_iterator}->());
 }
 
 sub iterator {
-  return shift->{iterator};
+  return shift->{_iterator};
 }
 
 sub reseed {
   my $self = shift;
-  $self->{prng}->srand(@_ ? @_ : ());
-}
-
-sub version {
-  return shift->{version};
+  $self->{_prng}->srand(@_ ? @_ : ());
 }
 
 #--------------------------------------------------------------------------#
@@ -88,7 +84,7 @@ sub version {
 sub _build_64bit_v1 {
   my $self = shift;
   my $gregorian_offset = 12219292800 * 10_000_000;
-  my $prng = $self->{prng};
+  my $prng = $self->{_prng};
 
   return sub {
     my ($sec,$usec) = Time::HiRes::gettimeofday();
@@ -147,7 +143,7 @@ sub _build_32bit_v1 {
 
 sub _build_64bit_v4 {
   my $self = shift;
-  my $prng = $self->{prng};
+  my $prng = $self->{_prng};
 
   return sub {
     my $uuid = pack("Q>2", $prng->irand, $prng->irand);
@@ -159,7 +155,7 @@ sub _build_64bit_v4 {
 
 sub _build_32bit_v4 {
   my $self = shift;
-  my $prng = $self->{prng};
+  my $prng = $self->{_prng};
 
   return sub {
     my $uuid = pack("N4",
@@ -175,7 +171,7 @@ sub _build_32bit_v4 {
 # 100 nanosecond intervals since epoch
 sub _build_64bit_v4s {
   my $self = shift;
-  my $prng = $self->{prng};
+  my $prng = $self->{_prng};
 
   return sub {
     my ($sec,$usec) = Time::HiRes::gettimeofday();
