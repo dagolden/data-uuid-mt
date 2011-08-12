@@ -229,16 +229,67 @@ sub _build_32bit_v4s {
   
 = DESCRIPTION
 
-This module might be cool, but you'd never know it from the lack
-of documentation.
+This UUID generator uses the excellent L<Math::Random::MT::Auto> module
+as a source of fast, high-quality (pseudo) random numbers.
+
+Three different types of UUIDs are supported.  Two are consistent with
+the official RFC and one is a custom variant that provides a 'sequential UUID'
+that can be advantageous when used as a primary database key.
+
+== Version 1 UUIDs
+
+The UUID generally follows the "version 1" spec from the UUID, however the
+clock sequence and MAC address are randomly generated each time.  This is
+permissible within the spec of the RFC.  The random MAC address has the
+broadcast bit set as mandated to ensure it does not conflict with real MAC
+addresses.  This is slower than other modules that generate "version 1" UUIDs
+with the actual MAC address, but provides additional security by concealing the
+source of UUIDs.
+
+== Version 4 UUIDs
+
+The UUID follows the "version 4" spec, with 122 pseudo random bits and
+6 mandated bits that define the "variant" and "version" fields.
+
+== Version 4s UUIDs
+
+This is a custom UUID form that resembles "version 4" form, but that overlays
+the first 60 bits with a timestamp akin to "version 1",  Unlike "verson 1",
+this custom version preserves the ordering of bits from high to low, whereas
+"version 1" puts the low 32 bits of the timestamp first, then the middle 16
+bits, then multiplexes the high bits with version field.  This provides a
+"sequential UUID" with the timestamp providing order and the remaining random
+bits making collision with other UUIDs created at the exact same microsecond
+unlikely.
+
+== Unsupported: Versions 2, 3 and 5
+
+This modules focuses on random generation of UUID elements and does not
+support UUID versions 2, 3 and 5.
 
 = USAGE
 
-Good luck!
+== new
+
+== create
+
+== create_hex
+
+== create_string
+
+== iterator
+
+== reseed
+
+= COMPARISON TO OTHER UUID MODULES
+
+XXX write something here -- maybe a table of modules and support
+
+XXX benchmarking (maybe controversial)
 
 = SEE ALSO
 
-Maybe other modules do related things.
+XXX link to RFC?
 
 =end wikidoc
 
