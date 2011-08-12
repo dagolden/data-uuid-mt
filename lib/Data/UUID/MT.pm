@@ -17,6 +17,8 @@ use if $Config{uvsize} != 8 => 'Math::BigInt';
 # XXX for testing
 use Math::BigInt;
 
+# XXX should we automatically check $$ to reseed?  Or have CLONE (and track?)
+
 # HoH: $builders{$Config{uvsize}}{$version}
 my %builders = (
   '8' => {
