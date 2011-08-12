@@ -5,17 +5,9 @@ use warnings;
 package Data::UUID::MT;
 # VERSION
 
-# Dependencies
-use autodie 2.00;
+use Config;
 use Math::Random::MT::Auto;
 use Time::HiRes;
-use Config;
-
-# XXX need Math::BigInt on 32 bit systems
-use if $Config{uvsize} != 8 => 'Math::BigInt';
-
-# XXX for testing
-use Math::BigInt;
 
 # XXX should we automatically check $$ to reseed?  Or have CLONE (and track?)
 
