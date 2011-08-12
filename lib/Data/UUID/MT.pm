@@ -118,7 +118,7 @@ sub _build_32bit_v1 {
 
   return sub {
     my ($sec,$usec) = Time::HiRes::gettimeofday();
-    my $timestamp = Math::BigInt->new($sec)->bmul;
+    my $timestamp = Math::BigInt->new($sec);
     $timestamp->bmul(10_000_000)->badd($usec*10)->badd($gregorian_offset);
     # pack it up as 64 bit
     my $j = $timestamp->copy->brsft(32);
@@ -187,7 +187,7 @@ sub _build_32bit_v4s {
 
   return sub {
     my ($sec,$usec) = Time::HiRes::gettimeofday();
-    my $timestamp = Math::BigInt->new($sec)->bmul;
+    my $timestamp = Math::BigInt->new($sec);
     $timestamp->bmul(10_000_000)->badd($usec*10);
     # pack it up as 128 bit
     my $j = $timestamp->copy->brsft(32);
