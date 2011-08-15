@@ -178,6 +178,10 @@ sub _build_64bit_v4s {
     my $uuid = pack("Q>2",
       $sec*10_000_000 + $usec*10, $prng->irand
     );
+    # rotate last timestamp bits to make room for version field
+    vec($uuid, 14, 4) = vec($uuid, 15, 4);
+    vec($uuid, 15, 4) = vec($uuid, 12, 4);
+    vec($uuid, 12, 4) = vec($uuid, 13, 4);
     vec($uuid, 13, 4) = 0x4;        # set UUID version
     vec($uuid, 35, 2) = 0x2;        # set UUID variant
     return $uuid;
@@ -216,6 +220,10 @@ sub _build_32bit_v4s {
     }
 
     my $uuid = pack("N4", $hi, $low, $prng->irand, $prng->irand);
+    # rotate last timestamp bits to make room for version field
+    vec($uuid, 14, 4) = vec($uuid, 15, 4);
+    vec($uuid, 15, 4) = vec($uuid, 12, 4);
+    vec($uuid, 12, 4) = vec($uuid, 13, 4);
     vec($uuid, 13, 4) = 0x4;        # set UUID version
     vec($uuid, 35, 2) = 0x2;        # set UUID variant
     return $uuid;
