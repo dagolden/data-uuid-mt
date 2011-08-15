@@ -236,9 +236,7 @@ sub _build_32bit_v4s {
 
 =for Pod::Coverage method_names_here
 
-=begin wikidoc
-
-= SYNOPSIS
+=head1 SYNOPSIS
 
   use Data::UUID::MT;
   my $ug1 = Data::UUID::MT->new( version => 4 ); # "1", "4" or "4s"
@@ -256,7 +254,7 @@ sub _build_32bit_v4s {
   # after fork or thread creation
   $ug->reseed;
   
-= DESCRIPTION
+=head1 DESCRIPTION
 
 This UUID generator uses the excellent L<Math::Random::MT::Auto> module
 as a source of fast, high-quality (pseudo) random numbers.
@@ -265,7 +263,7 @@ Three different types of UUIDs are supported.  Two are consistent with
 the official RFC and one is a custom variant that provides a 'sequential UUID'
 that can be advantageous when used as a primary database key.
 
-== Version 1 UUIDs
+=head2 Version 1 UUIDs
 
 The UUID generally follows the "version 1" spec from the UUID, however the
 clock sequence and MAC address are randomly generated each time.  This is
@@ -275,12 +273,12 @@ addresses.  This is slower than other modules that generate "version 1" UUIDs
 with the actual MAC address, but provides additional security by concealing the
 source of UUIDs.
 
-== Version 4 UUIDs
+=head2 Version 4 UUIDs
 
 The UUID follows the "version 4" spec, with 122 pseudo random bits and
 6 mandated bits that define the "variant" and "version" fields.
 
-== Version 4s UUIDs
+=head2 Version 4s UUIDs
 
 This is a custom UUID form that resembles "version 4" form, but that overlays
 the first 60 bits with a timestamp akin to "version 1",  Unlike "verson 1",
@@ -291,36 +289,21 @@ bits, then multiplexes the high bits with version field.  This provides a
 bits making collision with other UUIDs created at the exact same microsecond
 unlikely.
 
-== Unsupported: Versions 2, 3 and 5
+=head2 Unsupported: Versions 2, 3 and 5
 
 This modules focuses on random generation of UUID elements and does not
 support UUID versions 2, 3 and 5.
 
-= USAGE
-
-== new
-
-== create
-
-== create_hex
-
-== create_string
-
-== iterator
-
-== reseed
-
-= COMPARISON TO OTHER UUID MODULES
+=head1 COMPARISON TO OTHER UUID MODULES
 
 XXX write something here -- maybe a table of modules and support
 
 XXX benchmarking (maybe controversial)
 
-= SEE ALSO
+=head1 SEE ALSO
 
-XXX link to RFC?
-
-=end wikidoc
+=for :list
+* L<RFC 4122 A Universally Unique IDentifier (UUID) URN Namespace|http://www.apps.ietf.org/rfc/rfc4122.html>
 
 =cut
 
