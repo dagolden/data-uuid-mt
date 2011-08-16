@@ -70,7 +70,7 @@ sub create {
 }
 
 sub create_hex {
-  return uc join "-", unpack("H*", shift->{_iterator}->() );
+  return "0x" . unpack("H*", shift->{_iterator}->() );
 }
 
 sub create_string {
