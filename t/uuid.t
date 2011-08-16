@@ -6,16 +6,17 @@ use Test::More 0.92;
 use Data::UUID::MT;
 use List::AllUtils qw/uniq/;
 
-sub _as_string {
-  return uc join "-", unpack("H8H4H4H4H12", shift);
-}
+# for diagnostics
+#sub _as_string {
+#  return uc join "-", unpack("H8H4H4H4H12", shift);
+#}
 
 my @cases = (
   {},
   { version => '1' },
   { version => '4' },
   { version => '4s' },
-); 
+);
 
 for my $c ( @cases ) {
   my $label = $c->{version} || '4 (default)';
@@ -33,7 +34,7 @@ for my $c ( @cases ) {
         substr(unpack("B8", chr(substr($version,0,1))),4,4),
         "version field correct"
     );
-    
+
     # uniqueness test
     my @uuids;
     push @uuids, $ug->create for 1 .. 10000;
@@ -65,6 +66,45 @@ for my $c ( @cases ) {
     }
   }
 }
+
+# output tests
+my $ug = Data::UUID::MT->new;
+my $hex = $ug->create_hex;
+my $str = $ug->create_string;
+my $h = "[0-9A-F]"; # uc
+is( length $hex, 34, "create_hex length correct");
+like( $hex, qr/\A0x${h}{32}\z/,
+  "create_hex format correct" 
+);
+is( length $str, 36, "create_hex length correct");
+like( $str, qr/\A${h}{8}-${h}{4}-${h}{4}-${h}{4}-${h}{12}\z/,
+  "create_hex format correct" 
+);
+
+# iterator test
+my $next = $ug->iterator;
+my $uuid = $next->();
+my $binary = unpack("B*", $uuid);
+is ( length $uuid, 16, "iterator produces 16 byte value" );
+is( substr($binary,64,2), "10", "variant field correct" );
+is( substr($binary,48,4),
+    substr(unpack("B8", chr(4)), 4, 4),
+    "version field correct"
+);
+
+# reseed test
+$ug->reseed(12345);
+my $first = $ug->create_string;
+$ug->reseed(12345);
+my $second = $ug->create_string;
+is( $first, $second, "got same UUIDs after reseeding with same values" );
+$ug->reseed;
+my $third = $ug->create_string;
+isnt( $second, $third, "got different UUID after default reseeding" );
+
+
+
+
 
 done_testing;
 # COPYRIGHT
