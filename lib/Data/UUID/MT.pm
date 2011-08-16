@@ -99,7 +99,7 @@ sub _build_64bit_v1 {
   return sub {
     if ($$ != $pid) {
       $prng->reseed();
-      $pid = $pid;
+      $pid = $$;
     }
     my ($sec,$usec) = Time::HiRes::gettimeofday();
     my $raw_time = pack("Q>", $sec*10_000_000 + $usec*10 + $gregorian_offset);
@@ -123,7 +123,7 @@ sub _build_32bit_v1 {
   return sub {
     if ($$ != $pid) {
       $prng->reseed();
-      $pid = $pid;
+      $pid = $$;
     }
     # Adapted from UUID::Tiny
     my $timestamp = Time::HiRes::time();
@@ -168,7 +168,7 @@ sub _build_64bit_v4 {
   return sub {
     if ($$ != $pid) {
       $prng->reseed();
-      $pid = $pid;
+      $pid = $$;
     }
     my $uuid = pack("Q>2", $prng->irand, $prng->irand);
     vec($uuid, 13, 4) = 0x4;        # set UUID version
@@ -206,7 +206,7 @@ sub _build_64bit_v4s {
   return sub {
     if ($$ != $pid) {
       $prng->reseed();
-      $pid = $pid;
+      $pid = $$;
     }
     my ($sec,$usec) = Time::HiRes::gettimeofday();
     my $uuid = pack("Q>2",
@@ -232,7 +232,7 @@ sub _build_32bit_v4s {
   return sub {
     if ($$ != $pid) {
       $prng->reseed();
-      $pid = $pid;
+      $pid = $$;
     }
     # Adapted from UUID::Tiny
     my $timestamp = Time::HiRes::time();
