@@ -35,7 +35,7 @@ Benchmarks are marked as to which UUID version is generated.
 Some modules offer method ('meth') and function ('func') interfaces.
 
 HERE
-my $count = -2;
+my $count = -3;
 my $results = timethese( $count, {
     'U|v?'          => sub { UUID::generate(my $u) },
     'UT|v1'         => sub { my $u = create_UUID() },
@@ -77,7 +77,7 @@ my $results = timethese( $count, {
 ## end copy
 
 my $width = max map { length( $_->[0]) } @vals; 
-my $format = "\%${width}s \%d/s\n";
+my $format = "\%${width}s \%8d/s\n";
 printf($format, $_->[0], $_->[7]) for @vals;
 
 
