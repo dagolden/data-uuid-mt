@@ -7,9 +7,13 @@ package Data::UUID::MT;
 
 use Config;
 use Math::Random::MT::Auto;
-use Time::HiRes;
+use Scalar::Util 1.10 ();
+use Time::HiRes ();
 
-# XXX should we automatically check $$ to reseed?  Or have CLONE (and track?)
+# track objects across threads for reseeding
+my ($can_weaken, @objects);
+$can_weaken = Scalar::Util->can('weaken');
+sub CLONE { defined($_) && $_->reseed for @objects }
 
 # HoH: $builders{$Config{uvsize}}{$version}
 my %builders = (
@@ -40,10 +44,15 @@ sub new {
     _prng => $prng,
     _version => $args{version},
   };
-  
+
   bless $self, $class;
 
   $self->{_iterator} = $self->_build_iterator;
+
+  if ($can_weaken) {
+    push @objects, $self;
+    Scalar::Util::weaken($objects[-1]);
+  }
 
   return $self;
 }
