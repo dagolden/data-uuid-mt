@@ -32,7 +32,7 @@ Key:
   DUMT  => Data::UUID::MT $Data::UUID::MT::VERSION
 
 Benchmarks are marked as to which UUID version is generated.
-Some modules offer method ('meth') and func ('func') interfaces.
+Some modules offer method ('meth') and function ('func') interfaces.
 
 HERE
 my $count = -2;
