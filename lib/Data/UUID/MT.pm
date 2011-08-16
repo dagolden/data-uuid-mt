@@ -477,21 +477,21 @@ is left to C<libuuid> -- which will result in version 4 UUIDs on my system.
  Benchmarks are marked as to which UUID version is generated.
  Some modules offer method ('meth') and function ('func') interfaces.
 
-         UT|v1    92784/s
-         UT|v4   116304/s
-       DULU|v1   180341/s
-       DULU|v?   181504/s
- DUMT|v4s|meth   273132/s
-  DUMT|v1|meth   281036/s
-       DULU|v4   294168/s
-          U|v?   298897/s
- DUMT|v4s|func   302693/s
-  DUMT|v1|func   312783/s
-    DG|v1|func   316806/s
-    DG|v1|meth   358399/s
-  DUMT|v4|meth   480234/s
-  DUMT|v4|func   592110/s
-         DU|v1  1306832/s
+         UT|v1    85229/s
+         UT|v4   110652/s
+       DULU|v1   177495/s
+       DULU|v?   178629/s
+ DUMT|v4s|meth   274905/s
+  DUMT|v1|meth   281942/s
+          U|v?   288136/s
+       DULU|v4   295107/s
+ DUMT|v4s|func   307575/s
+  DUMT|v1|func   313538/s
+    DG|v1|func   335333/s
+    DG|v1|meth   373515/s
+  DUMT|v4|meth   450845/s
+  DUMT|v4|func   588573/s
+         DU|v1  1312946/s
 
 =head1 SEE ALSO
 
