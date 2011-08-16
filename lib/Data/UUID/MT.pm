@@ -94,8 +94,13 @@ sub _build_64bit_v1 {
   my $self = shift;
   my $gregorian_offset = 12219292800 * 10_000_000;
   my $prng = $self->{_prng};
+  my $pid = $$;
 
   return sub {
+    if ($$ != $pid) {
+      $prng->reseed();
+      $pid = $pid;
+    }
     my ($sec,$usec) = Time::HiRes::gettimeofday();
     my $raw_time = pack("Q>", $sec*10_000_000 + $usec*10 + $gregorian_offset);
     # UUID v1 shuffles the time bits around
@@ -113,8 +118,13 @@ sub _build_64bit_v1 {
 sub _build_32bit_v1 {
   my $self = shift;
   my $prng = $self->{_prng};
+  my $pid = $$;
 
   return sub {
+    if ($$ != $pid) {
+      $prng->reseed();
+      $pid = $pid;
+    }
     # Adapted from UUID::Tiny
     my $timestamp = Time::HiRes::time();
 
@@ -153,8 +163,13 @@ sub _build_32bit_v1 {
 sub _build_64bit_v4 {
   my $self = shift;
   my $prng = $self->{_prng};
+  my $pid = $$;
 
   return sub {
+    if ($$ != $pid) {
+      $prng->reseed();
+      $pid = $pid;
+    }
     my $uuid = pack("Q>2", $prng->irand, $prng->irand);
     vec($uuid, 13, 4) = 0x4;        # set UUID version
     vec($uuid, 35, 2) = 0x2;        # set UUID variant
@@ -165,8 +180,13 @@ sub _build_64bit_v4 {
 sub _build_32bit_v4 {
   my $self = shift;
   my $prng = $self->{_prng};
+  my $pid = $$;
 
   return sub {
+    if ($$ != $pid) {
+      $prng->reseed();
+      $pid = $pid;
+    }
     my $uuid = pack("N4",
       $prng->irand, $prng->irand, $prng->irand, $prng->irand
     );
@@ -181,8 +201,13 @@ sub _build_32bit_v4 {
 sub _build_64bit_v4s {
   my $self = shift;
   my $prng = $self->{_prng};
+  my $pid = $$;
 
   return sub {
+    if ($$ != $pid) {
+      $prng->reseed();
+      $pid = $pid;
+    }
     my ($sec,$usec) = Time::HiRes::gettimeofday();
     my $uuid = pack("Q>2",
       $sec*10_000_000 + $usec*10, $prng->irand
@@ -202,8 +227,13 @@ sub _build_64bit_v4s {
 sub _build_32bit_v4s {
   my $self = shift;
   my $prng = $self->{_prng};
+  my $pid = $$;
 
   return sub {
+    if ($$ != $pid) {
+      $prng->reseed();
+      $pid = $pid;
+    }
     # Adapted from UUID::Tiny
     my $timestamp = Time::HiRes::time();
 
