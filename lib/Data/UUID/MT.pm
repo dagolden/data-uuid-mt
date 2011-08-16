@@ -70,7 +70,7 @@ sub create {
 }
 
 sub create_hex {
-  return "0x" . unpack("H*", shift->{_iterator}->() );
+  return "0x" . uc unpack("H*", shift->{_iterator}->() );
 }
 
 sub create_string {
@@ -283,8 +283,8 @@ sub _build_32bit_v4s {
 
   # method interface
   my $uuid1 = $ug->create();        # 16 byte binary string
-  my $uuid2 = $ug->create_hex();    # 0xB0470602A64B11DA863293EBF1C0E05A
-  my $uuid3 = $ug->create_string(); # B0470602-A64B-11DA-8632-93EBF1C0E05A
+  my $uuid2 = $ug->create_hex();
+  my $uuid3 = $ug->create_string();
 
   # iterator -- avoids some method call overhead
   my $next = $ug->iterator;
@@ -301,11 +301,11 @@ that can be advantageous when used as a primary database key.
 
 =head2 Version 1 UUIDs
 
-The UUID generally follows the "version 1" spec from the RFC, however the
-clock sequence and MAC address are randomly generated each time.  (This is
-permissible within the spec of the RFC.)  The random "MAC address" portion of
-the UUID has the multicast bit set as mandated by the RFC to ensure it does not
-conflict with real MAC addresses.  This UUID has 60 bits of timestamp data and
+The UUID generally follows the "version 1" spec from the RFC, however the clock
+sequence and MAC address are randomly generated each time.  (This is
+permissible within the spec of the RFC.)  The generated MAC address has the
+the multicast bit set as mandated by the RFC to ensure it does not
+conflict with real MAC addresses.  This UUID has 60 bits of timestamp data,
 61 bits of pseudo-random data and 7 mandated bits (multicast bit, "variant"
 field and "version" field).
 
@@ -320,44 +320,45 @@ This is a custom UUID form that resembles "version 4" form, but that overlays
 the first 60 bits with a timestamp akin to "version 1",  Unlike "version 1",
 this custom version preserves the ordering of bits from high to low, whereas
 "version 1" puts the low 32 bits of the timestamp first, then the middle 16
-bits, then multiplexes the high bits with version field.  This provides a
-"sequential UUID" with the timestamp providing order and the remaining random
-bits making collision with other UUIDs created at the exact same microsecond
-unlikely.  This UUID has 60 timestamp bits, 62 pseudo-random bits and 6
-mandated bits ("variant" field and "version" field).
+bits, then multiplexes the high bits with version field.  This "4s" variant
+provides a "sequential UUID" with the timestamp providing order and the
+remaining random bits making collision with other UUIDs created at the exact
+same microsecond highly unlikely.  This UUID has 60 timestamp bits, 62
+pseudo-random bits and 6 mandated bits ("variant" field and "version" field).
 
 =head2 Unsupported: Versions 2, 3 and 5
 
 This module focuses on generation of UUIDs with random elements and does not
 support UUID versions 2, 3 and 5.
 
-=attr new
+=method new
 
   my $ug = Data::UUID::MT->new( version => 4 );
 
 Creates a UUID generator object.  The only allowed versions are
 "1", "4" and "4s".  If no version is specified, it defaults to "4".
 
-=attr create
+=method create
 
   my $uuid = $ug->create;
 
 Returns a UUID packed into a 16 byte string.
 
-=attr create_hex
+=method create_hex
 
-  my $uuid = $ug->create_hex(); # 0xB0470602A64B11DA863293EBF1C0E05A
+  my $uuid = $ug->create_hex();
 
-Returns a UUID as a hex string, prefixed with "0x".
+Returns a UUID as a hex string, prefixed with "0x", e.g.
+C<0xB0470602A64B11DA863293EBF1C0E05A>
 
-=attr create_string
+=method create_string
 
   my $uuid = $ug->create_string(); #
 
 Returns UUID as an uppercase string in "standard" format, e.g.
 C<B0470602-A64B-11DA-8632-93EBF1C0E05A>
 
-=attr iterator
+=method iterator
 
   my $next = $ug->iterator;
   my $uuid = $next->();
@@ -365,24 +366,26 @@ C<B0470602-A64B-11DA-8632-93EBF1C0E05A>
 Returns a reference to the internal UUID generator function.  Because this
 avoids method call overhead, it is slightly faster than calling C<create>.
 
-=attr reseed
+=method reseed
 
   $ug->reseed;
 
-Reseeds the internal pseudo-random number generators.  This happens
-automatically after a fork or thread creation (assuming Scalar::Util::weaken).
+Reseeds the internal pseudo-random number generator.  This happens
+automatically after a fork or thread creation (assuming Scalar::Util::weaken),
+but may be called manually if desired for some reason.
 
 Any arguments provided are passed to Math::Random::MT::Auto::srand() for
-custom seeding, if desired.
+custom seeding.
 
   $ug->reseed('hotbits' => 250, '/dev/random');
 
 =head1 COMPARISON TO OTHER UUID MODULES
 
-At the time of writing, there are five other general purpose UUID generators
-on CPAN.  Data::GUID::MT is included in the dicussion below for comparison.
+At the time of writing, there are five other general purpose UUID generators on
+CPAN that I consider potential alternatives.  Data::GUID::MT is included in
+the dicussion below for comparison.
 
-=for :list:
+=for :list
 * L<Data::GUID> - version 1 UUIDs (wrapper around Data::UUID)
 * L<Data::UUID> - version 1 or 3 UUIDs (derived from RFC 4122 code)
 * L<Data::UUID::LibUUID> - version 1 or 4 UUIDs (libuuid)
@@ -398,14 +401,15 @@ C<uuidd> daemon if available.
 UUID.pm leaves the choice of version up to C<libuuid>.  Data::UUID::LibUUID
 does so by default, but also allows specifying a specific version.  Note that
 Data::UUID::LibUUID incorrectly refers to version 1 UUIDs as version 2 UUIDs.
-For example, to get a version 1 UUID explicitly, you must call
-C<Dat::UUID::LibUUID::new_uuid_binary(2)>.
+For example, to get a version 1 binary UUID explicitly, you would call
+C<Data::UUID::LibUUID::new_uuid_binary(2)>.
 
-In addition to sections below, there are additional slight difference in how
-modules/libraries treat the "clock sequence" field and otherwise attempt to
-keep state between calls, but this is generally immaterial.
+In addition to differences mentioned below, there are additional slight
+difference in how the modules (or C<libuuid>) treat the "clock sequence" field
+and otherwise attempt to keep state between calls, but this is generally
+immaterial.
 
-=head2 Version 1 UUIDs and Ethernet MAC addresses
+=head2 Use of Ethernet MAC addresses
 
 Version 1 UUID generators differ in whether they include the Ethernet MAC
 address as a "node identifier" as specified in RFC 4122.  Including the MAC
@@ -471,24 +475,23 @@ is left to C<libuuid> -- which will result in version 4 UUIDs on my system.
    DUMT  => Data::UUID::MT 0.001
 
  Benchmarks are marked as to which UUID version is generated.
- Some modules offer method ('meth') and func ('func') interfaces.
+ Some modules offer method ('meth') and function ('func') interfaces.
 
-         UT|v1 92914/s
-         UT|v4 114989/s
-       DULU|v1 176127/s
-       DULU|v? 178006/s
- DUMT|v4s|meth 275687/s
-  DUMT|v1|meth 291445/s
-       DULU|v4 292322/s
-          U|v? 300744/s
- DUMT|v4s|func 309688/s
-  DUMT|v1|func 330830/s
-    DG|v1|func 340786/s
-    DG|v1|meth 380074/s
-  DUMT|v4|meth 502750/s
-  DUMT|v4|func 598529/s
-         DU|v1 1263170/s
-
+         UT|v1    92784/s
+         UT|v4   116304/s
+       DULU|v1   180341/s
+       DULU|v?   181504/s
+ DUMT|v4s|meth   273132/s
+  DUMT|v1|meth   281036/s
+       DULU|v4   294168/s
+          U|v?   298897/s
+ DUMT|v4s|func   302693/s
+  DUMT|v1|func   312783/s
+    DG|v1|func   316806/s
+    DG|v1|meth   358399/s
+  DUMT|v4|meth   480234/s
+  DUMT|v4|func   592110/s
+         DU|v1  1306832/s
 
 =head1 SEE ALSO
 
