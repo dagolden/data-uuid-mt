@@ -1,5 +1,6 @@
 use 5.010;
 use warnings;
+use version;
 use Benchmark qw( cmpthese timethese :hireswallclock );
 use Config;
 use UUID;
@@ -18,8 +19,9 @@ my $ug4s = Data::UUID::MT->new( version => '4s' );
 my $next4s = $ug4s->iterator;
 
 my $duuid = Data::UUID->new;
+my $version = version->new($])->normal;
 
-say "Benchmark on $Config{archname} with $Config{uvsize} byte integers.\n";
+say "Benchmark on Perl $version for $Config{archname} with $Config{uvsize} byte integers.\n";
 print << "HERE";
 Key:
   U     => UUID $UUID::VERSION
@@ -36,20 +38,20 @@ HERE
 my $count = -2;
 my $results = timethese( $count, {
     'U|v?'          => sub { UUID::generate(my $u) },
-    'UT|v1'         => sub { create_UUID() },
-    'UT|v4'         => sub { create_UUID(UUID_V4) },
-    'DG|v1|meth'    => sub { Data::GUID->guid; },
-    'DG|v1|func'    => sub { dg_guid(); },
-    'DU|v1'         => sub { $duuid->create_bin() },
-    'DULU|v1'       => sub { new_uuid_binary(1) },
-    'DULU|v2'       => sub { new_uuid_binary(2) },
-    'DULU|v4'       => sub { new_uuid_binary(4) },
-    'DUMT|v1|meth'  => sub { $ug1->create },
-    'DUMT|v1|func'  => sub { $next1->() },
-    'DUMT|v4|meth'  => sub { $ug4->create },
-    'DUMT|v4|func'  => sub { $next4->() },
-    'DUMT|v4s|meth' => sub { $ug4s->create },
-    'DUMT|v4s|func' => sub { $next4s->() },
+    'UT|v1'         => sub { my $u = create_UUID() },
+    'UT|v4'         => sub { my $u = create_UUID(UUID_V4) },
+    'DG|v1|meth'    => sub { my $u = Data::GUID->guid; },
+    'DG|v1|func'    => sub { my $u = dg_guid(); },
+    'DU|v1'         => sub { my $u = $duuid->create_bin() },
+    'DULU|v?'       => sub { my $u = new_uuid_binary() },
+    'DULU|v1'       => sub { my $u = new_uuid_binary(2) }, # must be 2 for v1
+    'DULU|v4'       => sub { my $u = new_uuid_binary(4) },
+    'DUMT|v1|meth'  => sub { my $u = $ug1->create },
+    'DUMT|v1|func'  => sub { my $u = $next1->() },
+    'DUMT|v4|meth'  => sub { my $u = $ug4->create },
+    'DUMT|v4|func'  => sub { my $u = $next4->() },
+    'DUMT|v4s|meth' => sub { my $u = $ug4s->create },
+    'DUMT|v4s|func' => sub { my $u = $next4s->() },
   },  "none"
 );
 
