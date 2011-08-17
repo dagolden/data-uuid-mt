@@ -387,7 +387,7 @@ custom seeding.
 =head1 COMPARISON TO OTHER UUID MODULES
 
 At the time of writing, there are five other general purpose UUID generators on
-CPAN that I consider potential alternatives.  Data::GUID::MT is included in
+CPAN that I consider potential alternatives.  Data::UUID::MT is included in
 the dicussion below for comparison.
 
 =for :list
@@ -396,7 +396,7 @@ the dicussion below for comparison.
 * L<Data::UUID::LibUUID> - version 1 or 4 UUIDs (libuuid)
 * L<UUID> - version 1 or 4 UUIDs (libuuid)
 * L<UUID::Tiny> - versions 1, 3, 4, or 5 (pure perl)
-* L<Data::GUID::MT> - version 1 or 4 (or custom sequential "4s")
+* L<Data::UUID::MT> - version 1 or 4 (or custom sequential "4s")
 
 C<libuuid> based UUIDs may generally be either version 4 (preferred) or version
 1 (fallback), depending on the availability of a good random bit source (e.g.

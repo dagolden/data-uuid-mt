@@ -1,6 +1,8 @@
 Revision history for Data-UUID-MT
 
 {{$NEXT}}
+    - Fixed typo: s/Data::GUID::MT/Data::UUID/MT
+      (Why do I find these things *after* I release. <sigh>)
 
 0.002     2011-08-16 21:39:59 America/New_York
     - Added note recommending against use of pseudo-random UUIDs as
