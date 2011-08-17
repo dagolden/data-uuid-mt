@@ -299,6 +299,11 @@ Three different types of UUIDs are supported.  Two are consistent with
 RFC 4122 and one is a custom variant that provides a 'sequential UUID'
 that can be advantageous when used as a primary database key.
 
+B<Note>: The Mersenne Twister pseudo-random number generator has excellent
+statistical properties, but it is not considered cryptographically secure.
+Pseudo-random UUIDs are not recommended for use as security authentication
+tokens in cookies or other user-visible session identifiers.
+
 =head2 Version 1 UUIDs
 
 The UUID generally follows the "version 1" spec from the RFC, however the clock
