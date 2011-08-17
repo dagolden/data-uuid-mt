@@ -1,6 +1,8 @@
 Revision history for Data-UUID-MT
 
 {{$NEXT}}
+
+0.003     2011-08-16 21:48:37 America/New_York
     - Fixed typo: s/Data::GUID::MT/Data::UUID/MT
       (Why do I find these things *after* I release. <sigh>)
 
