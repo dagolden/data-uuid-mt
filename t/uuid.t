@@ -1,7 +1,7 @@
 use 5.006;
 use strict;
 use warnings;
-use Test::More 0.92;
+use Test::More 0.96;
 
 use Data::UUID::MT;
 use List::AllUtils qw/uniq/;
