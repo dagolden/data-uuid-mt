@@ -388,7 +388,7 @@ custom seeding.
 
 At the time of writing, there are five other general purpose UUID generators on
 CPAN that I consider potential alternatives.  Data::UUID::MT is included in
-the dicussion below for comparison.
+the discussion below for comparison.
 
 =for :list
 * L<Data::GUID> - version 1 UUIDs (wrapper around Data::UUID)
@@ -426,7 +426,7 @@ address, if available, or will substitute a random MAC (with multicast bit
 set).
 
 Data::UUID version 1 UUIDs do not contain the MAC address, but replace
-it with an MD5 hash of data including the hostname and hostid (possibly
+it with an MD5 hash of data including the hostname and host id (possibly
 just the IP address), modified with the multicast bit.
 
 Both UUID::Tiny and Data::UUID::MT version 1 UUIDs do not contain the actual
