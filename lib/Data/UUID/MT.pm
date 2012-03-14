@@ -1,4 +1,4 @@
-use 5.010;
+use 5.010; # uses 'Q' in pack
 use strict;
 use warnings;
 
