@@ -2,6 +2,9 @@ Revision history for Data-UUID-MT
 
 {{$NEXT}}
 
+    - Now backwards compatible to Perl v5.6 [fix suggested by Steffen
+      Mueller]
+
 0.004     2011-12-20 11:56:21 EST5EDT
 
     - Bumped Test::More test prereq to 0.96 (needed for subtest support)

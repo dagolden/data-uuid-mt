@@ -1,4 +1,4 @@
-use 5.010; # uses 'Q' in pack
+use 5.006;
 use strict;
 use warnings;
 
@@ -18,9 +18,9 @@ sub CLONE { defined($_) && $_->reseed for @objects }
 # HoH: $builders{$Config{uvsize}}{$version}
 my %builders = (
   '8' => {
-    '1'   =>  '_build_64bit_v1',
-    '4'   =>  '_build_64bit_v4',
-    '4s'  =>  '_build_64bit_v4s',
+    '1'   =>  ($] ge 5.010 ? '_build_64bit_v1'  : '_build_64bit_v1_old' ),
+    '4'   =>  ($] ge 5.010 ? '_build_64bit_v4'  : '_build_64bit_v4_old' ),
+    '4s'  =>  ($] ge 5.010 ? '_build_64bit_v4s' : '_build_64bit_v4s_old'),
   },
   '4' => {
     '1'   =>  '_build_32bit_v1',
@@ -31,7 +31,7 @@ my %builders = (
 
 sub new {
   my ($class, %args) = @_;
-  $args{version} //= 4;
+  $args{version} = 4 unless defined $args{version};
   Carp::croak "Unsupported UUID version '$args{version}'"
     unless $args{version} =~ /^(?:1|4|4s)$/;
   my $int_size = $Config{uvsize};
@@ -115,6 +115,34 @@ sub _build_64bit_v1 {
   }
 }
 
+# For Perl < v5.10, can't use "Q>" in pack
+sub _build_64bit_v1_old {
+  my $self = shift;
+  my $gregorian_offset = 12219292800 * 10_000_000;
+  my $prng = $self->{_prng};
+  my $pid = $$;
+
+  return sub {
+    if ($$ != $pid) {
+      $prng->reseed();
+      $pid = $$;
+    }
+    my ($sec,$usec) = Time::HiRes::gettimeofday();
+    my $time_sum = $sec*10_000_000 + $usec*10 + $gregorian_offset;
+    my $raw_time = pack("N2", $time_sum >> 32, $time_sum );
+    # UUID v1 shuffles the time bits around
+    my $irand = $prng->irand;
+    my $uuid  = substr($raw_time,4,4)
+              . substr($raw_time,2,2)
+              . substr($raw_time,0,2)
+              . pack("N2", $irand >> 32, $irand);
+    vec($uuid, 87, 1) = 0x1;        # force MAC multicast bit on per RFC
+    vec($uuid, 13, 4) = 0x1;        # set UUID version
+    vec($uuid, 35, 2) = 0x2;        # set UUID variant
+    return $uuid;
+  }
+}
+
 sub _build_32bit_v1 {
   my $self = shift;
   my $prng = $self->{_prng};
@@ -177,6 +205,27 @@ sub _build_64bit_v4 {
   }
 }
 
+# For Perl < v5.10, can't use "Q>" in pack
+sub _build_64bit_v4_old {
+  my $self = shift;
+  my $prng = $self->{_prng};
+  my $pid = $$;
+
+  return sub {
+    if ($$ != $pid) {
+      $prng->reseed();
+      $pid = $$;
+    }
+    my @irand = ($prng->irand, $prng->irand);
+    my $uuid = pack("N4",
+      $irand[0] >> 32, $irand[0], $irand[1] >> 32, $irand[1]
+    );
+    vec($uuid, 13, 4) = 0x4;        # set UUID version
+    vec($uuid, 35, 2) = 0x2;        # set UUID variant
+    return $uuid;
+  }
+}
+
 sub _build_32bit_v4 {
   my $self = shift;
   my $prng = $self->{_prng};
@@ -221,6 +270,35 @@ sub _build_64bit_v4s {
     return $uuid;
   }
 }
+
+# "4s" is custom "random" with sequential override based on
+# 100 nanosecond intervals since epoch
+# For Perl < v5.10, can't use "Q>" in pack
+sub _build_64bit_v4s_old {
+  my $self = shift;
+  my $prng = $self->{_prng};
+  my $pid = $$;
+
+  return sub {
+    if ($$ != $pid) {
+      $prng->reseed();
+      $pid = $$;
+    }
+    my ($sec,$usec) = Time::HiRes::gettimeofday();
+    my @parts = ($sec*10_000_000 + $usec*10, $prng->irand);
+    my $uuid = pack("N4",
+      $parts[0] >> 32, $parts[0], $parts[1] >> 32, $parts[1]
+    );
+    # rotate last timestamp bits to make room for version field
+    vec($uuid, 14, 4) = vec($uuid, 15, 4);
+    vec($uuid, 15, 4) = vec($uuid, 12, 4);
+    vec($uuid, 12, 4) = vec($uuid, 13, 4);
+    vec($uuid, 13, 4) = 0x4;        # set UUID version
+    vec($uuid, 35, 2) = 0x2;        # set UUID variant
+    return $uuid;
+  }
+}
+
 
 # "4s" is custom "random" with sequential override based on
 # 100 nanosecond intervals since epoch
