@@ -2,6 +2,8 @@ Revision history for Data-UUID-MT
 
 {{$NEXT}}
 
+0.006     2012-04-18 05:53:08 America/New_York
+
     - Added documentation about converting UUID formats with pack/unpack
 
 0.005     2012-03-15 05:45:44 EST5EDT
