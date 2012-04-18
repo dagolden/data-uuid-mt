@@ -462,6 +462,28 @@ custom seeding.
 
   $ug->reseed('hotbits' => 250, '/dev/random');
 
+=head1 UUID STRING REPRESENTATIONS
+
+A UUID contains 16 bytes.  A hex string representation looks like
+C<0xB0470602A64B11DA863293EBF1C0E05A>. A "standard" representation
+looks like C<B0470602-A64B-11DA-8632-93EBF1C0E05A>.  Sometimes
+these are seen in lower case and on Windows the standard format is
+often seen wrapped in parentheses.
+
+Converting back and forth is easy with C<pack> and C<unpack>.
+
+  # string to 16 bytes
+  $string =~ s/^0x//i;            # remove leading "0x"
+  $string =~ tr/()-//d;           # strip '-' and parentheses
+  $binary = pack("H*", $string);
+
+  # 16 bytes to uppercase string formats
+  $hex = "0x" . uc unpack("H*", $binary);
+  $std = uc join "-", unpack("H8H4H4H4H12", $binary);
+
+If you need a module that provides these conversions for you, consider
+L<UUID::Tiny>.
+
 =head1 COMPARISON TO OTHER UUID MODULES
 
 At the time of writing, there are five other general purpose UUID generators on
