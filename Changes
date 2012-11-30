@@ -2,6 +2,9 @@ Revision history for Data-UUID-MT
 
 {{$NEXT}}
 
+    - Hex and string output is now lowercase, per RFC 4122 standard
+      [rt.cpan.org #81582]
+
 0.006     2012-04-18 05:53:08 America/New_York
 
     - Added documentation about converting UUID formats with pack/unpack

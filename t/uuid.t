@@ -71,7 +71,7 @@ for my $c ( @cases ) {
 my $ug = Data::UUID::MT->new;
 my $hex = $ug->create_hex;
 my $str = $ug->create_string;
-my $h = "[0-9A-F]"; # uc
+my $h = "[0-9a-f]"; # lc
 is( length $hex, 34, "create_hex length correct");
 like( $hex, qr/\A0x${h}{32}\z/,
   "create_hex format correct" 

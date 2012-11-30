@@ -70,11 +70,11 @@ sub create {
 }
 
 sub create_hex {
-  return "0x" . uc unpack("H*", shift->{_iterator}->() );
+  return "0x" . unpack("H*", shift->{_iterator}->() );
 }
 
 sub create_string {
-  return uc join "-", unpack("H8H4H4H4H12", shift->{_iterator}->());
+  return join "-", unpack("H8H4H4H4H12", shift->{_iterator}->());
 }
 
 sub iterator {
@@ -431,15 +431,15 @@ Returns a UUID packed into a 16 byte string.
 
   my $uuid = $ug->create_hex();
 
-Returns a UUID as a hex string, prefixed with "0x", e.g.
-C<0xB0470602A64B11DA863293EBF1C0E05A>
+Returns a UUID as a lowercase hex string, prefixed with "0x", e.g.
+C<0xb0470602a64b11da863293ebf1c0e05a>
 
 =method create_string
 
   my $uuid = $ug->create_string(); #
 
-Returns UUID as an uppercase string in "standard" format, e.g.
-C<B0470602-A64B-11DA-8632-93EBF1C0E05A>
+Returns UUID as a lowercase string in "standard" format, e.g.
+C<b0470602-a64b-11da-8632-93ebf1c0e05a>
 
 =method iterator
 
@@ -465,9 +465,9 @@ custom seeding.
 =head1 UUID STRING REPRESENTATIONS
 
 A UUID contains 16 bytes.  A hex string representation looks like
-C<0xB0470602A64B11DA863293EBF1C0E05A>. A "standard" representation
-looks like C<B0470602-A64B-11DA-8632-93EBF1C0E05A>.  Sometimes
-these are seen in lower case and on Windows the standard format is
+C<0xb0470602a64b11da863293ebf1c0e05a>. A "standard" representation
+looks like C<b0470602-a64b-11da-8632-93ebf1c0e05a>.  Sometimes
+these are seen in upper case and on Windows the standard format is
 often seen wrapped in parentheses.
 
 Converting back and forth is easy with C<pack> and C<unpack>.
