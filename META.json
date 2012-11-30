@@ -4,7 +4,7 @@
       "David Golden <dagolden@cpan.org>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 4.300009, CPAN::Meta::Converter version 2.120630",
+   "generated_by" : "Dist::Zilla version 4.300025, CPAN::Meta::Converter version 2.120921",
    "license" : [
       "apache_2_0"
    ],
@@ -53,22 +53,22 @@
    "provides" : {
       "Data::UUID::MT" : {
          "file" : "lib/Data/UUID/MT.pm",
-         "version" : "0.006"
+         "version" : "1.000"
       }
    },
    "release_status" : "stable",
    "resources" : {
       "bugtracker" : {
-         "mailto" : "bug-data-uuid-mt at rt.cpan.org",
-         "web" : "http://rt.cpan.org/Public/Dist/Display.html?Name=Data-UUID-MT"
+         "mailto" : "bug-Data-UUID-MT@rt.cpan.org",
+         "web" : "https://rt.cpan.org/Public/Dist/Display.html?Name=Data-UUID-MT"
       },
-      "homepage" : "https://github.com/dagolden/data-uuid-mt",
+      "homepage" : "https://metacpan.org/release/Data-UUID-MT",
       "repository" : {
          "type" : "git",
-         "url" : "https://github.com/dagolden/data-uuid-mt.git",
+         "url" : "git://github.com/dagolden/data-uuid-mt.git",
          "web" : "https://github.com/dagolden/data-uuid-mt"
       }
    },
-   "version" : "0.006"
+   "version" : "1.000"
 }
 
