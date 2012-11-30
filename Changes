@@ -2,6 +2,8 @@ Revision history for Data-UUID-MT
 
 {{$NEXT}}
 
+1.000     2012-11-30 17:03:16 America/New_York
+
     - Hex and string output is now lowercase, per RFC 4122 standard
       [rt.cpan.org #81582]
 
