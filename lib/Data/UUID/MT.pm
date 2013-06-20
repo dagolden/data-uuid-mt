@@ -98,7 +98,7 @@ sub _build_64bit_v1 {
 
   return sub {
     if ($$ != $pid) {
-      $prng->reseed();
+      $prng->srand();
       $pid = $$;
     }
     my ($sec,$usec) = Time::HiRes::gettimeofday();
@@ -124,7 +124,7 @@ sub _build_64bit_v1_old {
 
   return sub {
     if ($$ != $pid) {
-      $prng->reseed();
+      $prng->srand();
       $pid = $$;
     }
     my ($sec,$usec) = Time::HiRes::gettimeofday();
@@ -150,7 +150,7 @@ sub _build_32bit_v1 {
 
   return sub {
     if ($$ != $pid) {
-      $prng->reseed();
+      $prng->srand();
       $pid = $$;
     }
     # Adapted from UUID::Tiny
@@ -195,7 +195,7 @@ sub _build_64bit_v4 {
 
   return sub {
     if ($$ != $pid) {
-      $prng->reseed();
+      $prng->srand();
       $pid = $$;
     }
     my $uuid = pack("Q>2", $prng->irand, $prng->irand);
@@ -213,7 +213,7 @@ sub _build_64bit_v4_old {
 
   return sub {
     if ($$ != $pid) {
-      $prng->reseed();
+      $prng->srand();
       $pid = $$;
     }
     my @irand = ($prng->irand, $prng->irand);
@@ -233,8 +233,8 @@ sub _build_32bit_v4 {
 
   return sub {
     if ($$ != $pid) {
-      $prng->reseed();
-      $pid = $pid;
+      $prng->srand();
+      $pid = $$;
     }
     my $uuid = pack("N4",
       $prng->irand, $prng->irand, $prng->irand, $prng->irand
@@ -254,7 +254,7 @@ sub _build_64bit_v4s {
 
   return sub {
     if ($$ != $pid) {
-      $prng->reseed();
+      $prng->srand();
       $pid = $$;
     }
     my ($sec,$usec) = Time::HiRes::gettimeofday();
@@ -281,7 +281,7 @@ sub _build_64bit_v4s_old {
 
   return sub {
     if ($$ != $pid) {
-      $prng->reseed();
+      $prng->srand();
       $pid = $$;
     }
     my ($sec,$usec) = Time::HiRes::gettimeofday();
@@ -309,7 +309,7 @@ sub _build_32bit_v4s {
 
   return sub {
     if ($$ != $pid) {
-      $prng->reseed();
+      $prng->srand();
       $pid = $$;
     }
     # Adapted from UUID::Tiny
