@@ -4,7 +4,7 @@
       "David Golden <dagolden@cpan.org>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 4.300025, CPAN::Meta::Converter version 2.120921",
+   "generated_by" : "Dist::Zilla version 4.300034, CPAN::Meta::Converter version 2.131560",
    "license" : [
       "apache_2_0"
    ],
@@ -30,6 +30,14 @@
             "ExtUtils::MakeMaker" : "6.30"
          }
       },
+      "develop" : {
+         "requires" : {
+            "Pod::Coverage::TrustPod" : "0",
+            "Test::CPAN::Meta" : "0",
+            "Test::Pod" : "1.41",
+            "Test::Pod::Coverage" : "1.08"
+         }
+      },
       "runtime" : {
          "requires" : {
             "Config" : "0",
@@ -43,9 +51,12 @@
       },
       "test" : {
          "requires" : {
+            "ExtUtils::MakeMaker" : "0",
             "File::Find" : "0",
+            "File::Spec::Functions" : "0",
             "File::Temp" : "0",
             "List::AllUtils" : "0",
+            "List::Util" : "0",
             "Test::More" : "0.96"
          }
       }
@@ -53,14 +64,13 @@
    "provides" : {
       "Data::UUID::MT" : {
          "file" : "lib/Data/UUID/MT.pm",
-         "version" : "1.000"
+         "version" : "1.001"
       }
    },
    "release_status" : "stable",
    "resources" : {
       "bugtracker" : {
-         "mailto" : "bug-Data-UUID-MT@rt.cpan.org",
-         "web" : "https://rt.cpan.org/Public/Dist/Display.html?Name=Data-UUID-MT"
+         "web" : "https://github.com/dagolden/data-uuid-mt/issues"
       },
       "homepage" : "https://metacpan.org/release/Data-UUID-MT",
       "repository" : {
@@ -69,6 +79,9 @@
          "web" : "https://github.com/dagolden/data-uuid-mt"
       }
    },
-   "version" : "1.000"
+   "version" : "1.001",
+   "x_contributors" : [
+      "Matt Koscica <matt.koscica@gmail.com>"
+   ]
 }
 
